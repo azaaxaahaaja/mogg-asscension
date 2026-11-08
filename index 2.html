@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MOGG — Ascension Protocol</title>
+<style>
+:root {
+  --bg: #0a0b0f;
+  --bg2: #12141c;
+  --bg3: #1a1d2a;
+  --border: #2a2f45;
+  --accent: #7c5cff;
+  --accent2: #00e5ff;
+  --gold: #ffd700;
+  --danger: #ff4d6a;
+  --success: #00e676;
+  --text: #e8eaf6;
+  --text2: #9aa0b8;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.45;
+  overflow-x: hidden;
+  user-select: none;
+}
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #0d0f18 0%, #0a0b0f 100%);
+}
+/* Header */
+.header {
+  padding: 14px 16px 10px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.logo {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.rank-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2a1f5e, #1a2a4a);
+  border: 1px solid var(--accent);
+  color: var(--accent2);
+  letter-spacing: 0.3px;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+.stat-pill {
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.stat-pill span { display: block; color: var(--text2); font-size: 0.68rem; }
+.stat-pill strong { color: var(--gold); font-size: 0.9rem; }
+/* Energy bar */
+.energy-bar {
+  margin-top: 8px;
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.energy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00bcd4, var(--accent2));
+  transition: width 0.35s ease;
+  border-radius: 4px;
+}
+/* Nav */
+.nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.nav-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(124,92,255,0.45);
+}
+.nav-btn:active { transform: scale(0.96); }
+/* Main content */
+.content {
+  flex: 1;
+  padding: 14px 14px 90px;
+  overflow-y: auto;
+}
+.panel { display: none; animation: fadeIn 0.25s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Cards */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card h3 {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Click area */
+.click-zone {
+  text-align: center;
+  padding: 28px 16px;
+  background: radial-gradient(circle at center, #1a1440 0%, var(--bg2) 70%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.click-btn {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  background: radial-gradient(circle, #2a1f6e 0%, #12142a 70%);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(124,92,255,0.4), inset 0 0 20px rgba(0,229,255,0.15);
+  transition: transform 0.08s, box-shadow 0.15s;
+  position: relative;
+  z-index: 2;
+}
+.click-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 15px rgba(124,92,92,255,0.6);
+}
+.click-btn.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.float-text {
+  position: absolute;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--gold);
+  pointer-events: none;
+  animation: floatUp 0.8s ease-out forwards;
+  z-index: 10;
+}
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+}
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #5a3fd4);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124,92,255,0.35);
+}
+.btn-primary:disabled, .btn:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.btn-danger {
+  background: linear-gradient(135deg, #ff4d6a, #c62828);
+  border: none;
+  color: #fff;
+}
+.btn-success {
+  background: linear-gradient(135deg, #00c853, #009624);
+  border: none;
+  color: #fff;
+}
+.btn-gold {
+  background: linear-gradient(135deg, #ffd700, #ffb300);
+  border: none;
+  color: #1a1200;
+}
+.btn-block { width: 100%; }
+.btn-sm { padding: 7px 12px; font-size: 0.78rem; }
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+/* Train cards */
+.train-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.train-card .val { font-size: 1.3rem; font-weight: 800; color: var(--gold); margin: 4px 0; }
+.train-card .label { font-size: 0.75rem; color: var(--text2); }
+/* Battle */
+.enemy-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--bg3);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.enemy-info h4 { font-size: 0.9rem; margin-bottom: 2px; }
+.enemy-info small { color: var(--text2); font-size: 0.72rem; }
+/* Quests */
+.quest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--bg3);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.quest-item.done { border-color: var(--success); opacity: 0.7; }
+.quest-item .progress { font-size: 0.72rem; color: var(--text2); margin-top: 2px; }
+/* Cases */
+.case-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.case-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.case-card:active { transform: scale(0.97); }
+.case-card .icon { font-size: 2rem; margin-bottom: 6px; }
+.case-card .name { font-weight: 700; font-size: 0.85rem; }
+.case-card .price { color: var(--gold); font-size: 0.8rem; margin-top: 4px; }
+/* Inventory */
+.item-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  margin: 3px;
+}
+/* Leaderboard */
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+}
+.lb-row.you { border-color: var(--accent); background: #1a1635; }
+.lb-pos { font-weight: 800; width: 28px; color: var(--gold); }
+.lb-name { flex: 1; font-size: 0.88rem; }
+.lb-score { color: var(--accent2); font-weight: 700; font-size: 0.85rem; }
+/* Profile */
+.profile-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.profile-stat:last-child { border-bottom: none; }
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg3);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  z-index: 100;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: fadeIn 0.25s ease;
+}
+.modal h2 { font-size: 1.1rem; margin-bottom: 12px; color: var(--accent2); }
+.modal p { font-size: 0.88rem; color: var(--text2); margin-bottom: 14px; }
+/* Rank up */
+.rank-req {
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin: 6px 0;
+}
+.rank-req.ok { color: var(--success); }
+.rank-req.no { color: var(--danger); }
+/* Cities / Clans */
+.select-card {
+  padding: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.select-card.active { border-color: var(--accent); background: #1a1635; }
+.select-card h4 { font-size: 0.9rem; margin-bottom: 2px; }
+.select-card small { color: var(--text2); font-size: 0.72rem; }
+/* Footer tip */
+.footer-tip {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text2);
+  padding: 8px;
+  opacity: 0.7;
+}
+/* Responsive */
+@media (min-width: 500px) {
+  .app { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+}
+/* Utility */
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mb-8 { margin-bottom: 8px; }
+.text-center { text-align: center; }
+.text-gold { color: var(--gold); }
+.text-muted { color: var(--text2); }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">MOGG — Ascension</div>
+      <div class="rank-badge" id="rankBadge">SAB3</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-pill"><span>Очки</span><strong id="pointsVal">0</strong></div>
+      <div class="stat-pill"><span>Энергия</span><strong id="energyVal">100/100</strong></div>
+      <div class="stat-pill"><span>Сила</span><strong id="strVal">1</strong></div>
+    </div>
+    <div class="energy-bar"><div class="energy-fill" id="energyFill" style="width:100%"></div></div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav" id="nav">
+    <button class="nav-btn active" data-panel="main">Клики</button>
+    <button class="nav-btn" data-panel="train">Тренировка</button>
+    <button class="nav-btn" data-panel="battle">Бой</button>
+    <button class="nav-btn" data-panel="quests">Задания</button>
+    <button class="nav-btn" data-panel="cases">Кейсы</button>
+    <button class="nav-btn" data-panel="profile">Профиль</button>
+    <button class="nav-btn" data-panel="cities">Города</button>
+    <button class="nav-btn" data-panel="clans">Кланы</button>
+    <button class="nav-btn" data-panel="leaderboard">Лидеры</button>
+    <button class="nav-btn" data-panel="rankup">Ранг</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- MAIN -->
+    <div class="panel active" id="panel-main">
+      <div class="click-zone" id="clickZone">
+        <button class="click-btn" id="clickBtn">MOG</button>
+      </div>
+      <div class="card">
+        <h3>⚡ Быстрый статус</h3>
+        <div class="grid-3">
+          <div class="text-center"><div class="text-muted" style="font-size:0.72rem">Интеллект</div><strong id="intVal">1</strong></div>
+          <div class="text-center"><div class="text-muted" style="font-size:0.72rem">Аура</div><strong id="auraVal">1</strong></div>
+          <div class="text-center"><div class="text-muted" style="font-size:0.72rem">Всего кликов</div><strong id="totalClicks">0</strong></div>
+        </div>
+        <p class="text-muted mt-12" style="font-size:0.78rem;text-align:center">
+          Кликай, чтобы получать очки. Энергия восстанавливается со временем.
+        </p>
+      </div>
+    </div>
+
+    <!-- TRAIN -->
+    <div class="panel" id="panel-train">
+      <div class="card">
+        <h3>🏋️ Тренировка характеристик</h3>
+        <p class="text-muted mb-8" style="font-size:0.8rem">Каждая тренировка стоит 15 энергии и 50 очков.</p>
+        <div class="grid-3">
+          <div class="train-card">
+            <div class="label">Сила</div>
+            <div class="val" id="trainStr">1</div>
+            <button class="btn btn-primary btn-sm btn-block mt-8" id="btnTrainStr">+1</button>
+          </div>
+          <div class="train-card">
+            <div class="label">Интеллект</div>
+            <div class="val" id="trainInt">1</div>
+            <button class="btn btn-primary btn-sm btn-block mt-8" id="btnTrainInt">+1</button>
+          </div>
+          <div class="train-card">
+            <div class="label">Аура</div>
+            <div class="val" id="trainAura">1</div>
+            <button class="btn btn-primary btn-sm btn-block mt-8" id="btnTrainAura">+1</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>💊 Восстановление</h3>
+        <p class="text-muted" style="font-size:0.8rem">Полностью восстановить энергию за 200 очков.</p>
+        <button class="btn btn-success btn-block mt-8" id="btnRestoreEnergy">Восстановить энергию</button>
+      </div>
+    </div>
+
+    <!-- BATTLE -->
+    <div class="panel" id="panel-battle">
+      <div class="card">
+        <h3>⚔️ Противники</h3>
+        <p class="text-muted mb-8" style="font-size:0.8rem">Победа даёт очки и опыт. Поражение тратит энергию.</p>
+        <div id="enemyList"></div>
+      </div>
+    </div>
+
+    <!-- QUESTS -->
+    <div class="panel" id="panel-quests">
+      <div class="card">
+        <h3>📋 Задания</h3>
+        <div id="questList"></div>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div class="panel" id="panel-cases">
+      <div class="card">
+        <h3>🎁 Кейсы</h3>
+        <p class="text-muted mb-8" style="font-size:0.8rem">Открывай кейсы за очки и получай предметы.</p>
+        <div class="case-grid" id="caseGrid"></div>
+      </div>
+      <div class="card">
+        <h3>🎒 Инвентарь</h3>
+        <div id="inventoryList" class="mt-8"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="panel" id="panel-profile">
+      <div class="card">
+        <h3>👤 Профиль игрока</h3>
+        <div class="profile-stat"><span>Имя</span><strong id="profName">Mogger</strong></div>
+        <div class="profile-stat"><span>Ранг</span><strong id="profRank">SAB3</strong></div>
+        <div class="profile-stat"><span>Очки</span><strong id="profPoints">0</strong></div>
+        <div class="profile-stat"><span>Сила / Интеллект / Аура</span><strong id="profStats">1 / 1 / 1</strong></div>
+        <div class="profile-stat"><span>Всего кликов</span><strong id="profClicks">0</strong></div>
+        <div class="profile-stat"><span>Побед в боях</span><strong id="profWins">0</strong></div>
+        <div class="profile-stat"><span>Город</span><strong id="profCity">—</strong></div>
+        <div class="profile-stat"><span>Клан</span><strong id="profClan">—</strong></div>
+        <div class="mt-12">
+          <label class="text-muted" style="font-size:0.8rem">Изменить имя</label>
+          <div class="flex-between mt-8" style="gap:8px">
+            <input type="text" id="nameInput" maxlength="16" placeholder="Новое имя"
+              style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.9rem">
+            <button class="btn btn-primary" id="btnSaveName">Сохранить</button>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-block mt-12" id="btnReset">Сбросить прогресс</button>
+      </div>
+    </div>
+
+    <!-- CITIES -->
+    <div class="panel" id="panel-cities">
+      <div class="card">
+        <h3>🏙️ Города</h3>
+        <p class="text-muted mb-8" style="font-size:0.8rem">Выбери город — получи постоянный бонус.</p>
+        <div id="cityList"></div>
+      </div>
+    </div>
+
+    <!-- CLANS -->
+    <div class="panel" id="panel-clans">
+      <div class="card">
+        <h3>🛡️ Кланы</h3>
+        <p class="text-muted mb-8" style="font-size:0.8rem">Вступи в клан для бонуса к характеристикам.</p>
+        <div id="clanList"></div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="panel" id="panel-leaderboard">
+      <div class="card">
+        <h3>🏆 Таблица лидеров</h3>
+        <div id="lbList"></div>
+      </div>
+    </div>
+
+    <!-- RANK UP -->
+    <div class="panel" id="panel-rankup">
+      <div class="card">
+        <h3>⬆️ Повышение ранга</h3>
+        <p class="text-muted" style="font-size:0.8rem">Текущий ранг: <strong id="currentRankName" class="text-gold">SAB3</strong></p>
+        <p class="text-muted mt-8" style="font-size:0.8rem">Следующий: <strong id="nextRankName">LOW LTN</strong></p>
+        <div id="rankReqs" class="mt-12"></div>
+        <button class="btn btn-gold btn-block mt-12" id="btnRankUp">Повысить ранг</button>
+      </div>
+      <div class="card">
+        <h3>📜 Все ранги</h3>
+        <div id="allRanks" style="font-size:0.78rem;color:var(--text2);line-height:1.7"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-tip">Прогресс сохраняется автоматически • MOGG Ascension Protocol</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <h2 id="modalTitle">Заголовок</h2>
+    <div id="modalBody"></div>
+    <button class="btn btn-primary btn-block mt-12" id="modalClose">Закрыть</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ========== DATA ==========
+  const RANKS = [
+    "SAB3","LOW LTN","MID LTN","LTN","HIGH LTN",
+    "LOW MTN","MID MTN","MTN","HIGH MTN",
+    "LOW HTN","MID HTN","HTN","HIGH HTN",
+    "LOW CHADLITE","MID CHADLITE","CHADLITE","HIGH CHADLITE",
+    "LOW CHAD","MID CHAD","CHAD","HIGH CHAD",
+    "LOW TRUE CHAD","MID TRUE CHAD","TRUE CHAD","HIGH TRUE CHAD",
+    "LOW ADAM","MID ADAM","ADAM","HIGH ADAM","TRUE ADAM"
+  ];
+
+  const RANK_REQS = RANKS.map((_, i) => ({
+    points: Math.floor(100 * Math.pow(1.55, i)),
+    strength: 1 + i * 2,
+    intelligence: 1 + i * 2,
+    aura: 1 + i * 2
+  }));
+
+  const CITIES = [
+    { id: "neo", name: "Нео-Москва", bonus: "strength", value: 3, desc: "+3 к Силе" },
+    { id: "cyber", name: "Киберград", bonus: "intelligence", value: 3, desc: "+3 к Интеллекту" },
+    { id: "void", name: "Войд-Сити", bonus: "aura", value: 3, desc: "+3 к Ауре" },
+    { id: "ascend", name: "Асцендиум", bonus: "points", value: 0.1, desc: "+10% к очкам с кликов" }
+  ];
+
+  const CLANS = [
+    { id: "iron", name: "Железный Кулак", bonus: "strength", value: 5, desc: "+5 к Силе" },
+    { id: "mind", name: "Орден Разума", bonus: "intelligence", value: 5, desc: "+5 к Интеллекту" },
+    { id: "shadow", name: "Теневой Круг", bonus: "aura", value: 5, desc: "+5 к Ауре" },
+    { id: "mog", name: "MOGG Legion", bonus: "all", value: 2, desc: "+2 ко всем характеристикам" }
+  ];
+
+  const ENEMIES = [
+    { id: "noob", name: "Новичок", power: 5, reward: 40, energy: 8 },
+    { id: "grunt", name: "Громила", power: 15, reward: 90, energy: 12 },
+    { id: "elite", name: "Элитный воин", power: 35, reward: 200, energy: 18 },
+    { id: "boss", name: "Босс сектора", power: 70, reward: 450, energy: 25 },
+    { id: "legend", name: "Легенда", power: 150, reward: 1000, energy: 35 }
+  ];
+
+  const CASES = [
+    { id: "basic", name: "Базовый кейс", price: 150, icon: "📦",
+      loot: [
+        { type: "points", min: 50, max: 200, chance: 0.5 },
+        { type: "item", id: "boost_str", chance: 0.25 },
+        { type: "item", id: "boost_int", chance: 0.15 },
+        { type: "item", id: "energy_potion", chance: 0.1 }
+      ]
+    },
+    { id: "rare", name: "Редкий кейс", price: 500, icon: "💎",
+      loot: [
+        { type: "points", min: 200, max: 600, chance: 0.4 },
+        { type: "item", id: "boost_aura", chance: 0.25 },
+        { type: "item", id: "boost_all", chance: 0.2 },
+        { type: "item", id: "energy_potion", chance: 0.15 }
+      ]
+    },
+    { id: "legendary", name: "Легендарный", price: 1500, icon: "👑",
+      loot: [
+        { type: "points", min: 800, max: 2500, chance: 0.35 },
+        { type: "item", id: "boost_all", chance: 0.3 },
+        { type: "item", id: "rank_token", chance: 0.2 },
+        { type: "item", id: "super_potion", chance: 0.15 }
+      ]
+    },
+    { id: "mystic", name: "Мистический", price: 4000, icon: "🌀",
+      loot: [
+        { type: "points", min: 2000, max: 6000, chance: 0.3 },
+        { type: "item", id: "rank_token", chance: 0.35 },
+        { type: "item", id: "super_potion", chance: 0.2 },
+        { type: "item", id: "artifact", chance: 0.15 }
+      ]
+    }
+  ];
+
+  const ITEMS = {
+    boost_str: { name: "Буст Силы", desc: "+5 Силы навсегда", effect: { strength: 5 } },
+    boost_int: { name: "Буст Интеллекта", desc: "+5 Интеллекта навсегда", effect: { intelligence: 5 } },
+    boost_aura: { name: "Буст Ауры", desc: "+5 Ауры навсегда", effect: { aura: 5 } },
+    boost_all: { name: "Универсальный буст", desc: "+3 ко всем статам", effect: { strength: 3, intelligence: 3, aura: 3 } },
+    energy_potion: { name: "Зелье энергии", desc: "+50 энергии", effect: { energy: 50 } },
+    super_potion: { name: "Супер-зелье", desc: "Полная энергия + 300 очков", effect: { energy: 999, points: 300 } },
+    rank_token: { name: "Токен ранга", desc: "Снижает требования ранга на 10%", effect: { rankDiscount: 0.1 } },
+    artifact: { name: "Артефакт Мога", desc: "+10 ко всем статам", effect: { strength: 10, intelligence: 10, aura: 10 } }
+  };
+
+  // ========== STATE ==========
+  const defaultState = () => ({
+    name: "Mogger",
+    rank: 0,
+    points: 0,
+    strength: 1,
+    intelligence: 1,
+    aura: 1,
+    energy: 100,
+    maxEnergy: 100,
+    totalClicks: 0,
+    wins: 0,
+    city: null,
+    clan: null,
+    inventory: {},
+    quests: {
+      click100: { progress: 0, target: 100, done: false, claimed: false },
+      train5: { progress: 0, target: 5, done: false, claimed: false },
+      win3: { progress: 0, target: 3, done: false, claimed: false },
+      openCase: { progress: 0, target: 1, done: false, claimed: false },
+      reachLtn: { progress: 0, target: 1, done: false, claimed: false }
+    },
+    rankDiscount: 0,
+    lastEnergyUpdate: Date.now(),
+    version: 1
+  });
+
+  let state = defaultState();
+
+  // ========== SAVE / LOAD ==========
+  function save() {
+    try {
+      state.lastEnergyUpdate = Date.now();
+      localStorage.setItem("mogg_ascension_save", JSON.stringify(state));
+    } catch (e) {
+      console.warn("Save failed", e);
+    }
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem("mogg_ascension_save");
+      if (raw) {
+        const data = JSON.parse(raw);
+        state = Object.assign(defaultState(), data);
+        // Energy regen while offline
+        const now = Date.now();
+        const elapsed = Math.floor((now - (state.lastEnergyUpdate || now)) / 1000);
+        const regen = Math.floor(elapsed / 8); // 1 energy every 8 sec
+        state.energy = Math.min(state.maxEnergy, state.energy + regen);
+        state.lastEnergyUpdate = now;
+      }
+    } catch (e) {
+      console.warn("Load failed", e);
+      state = defaultState();
+    }
+  }
+
+  // ========== HELPERS ==========
+  function toast(msg, duration = 2200) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove("show"), duration);
+  }
+
+  function showModal(title, html) {
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalBody").innerHTML = html;
+    document.getElementById("modalOverlay").classList.add("show");
+  }
+
+  function hideModal() {
+    document.getElementById("modalOverlay").classList.remove("show");
+  }
+
+  function getBonus(stat) {
+    let bonus = 0;
+    if (state.city) {
+      const c = CITIES.find(x => x.id === state.city);
+      if (c && c.bonus === stat) bonus += c.value;
+      if (c && c.bonus === "all") bonus += c.value;
+    }
+    if (state.clan) {
+      const cl = CLANS.find(x => x.id === state.clan);
+      if (cl && cl.bonus === stat) bonus += cl.value;
+      if (cl && cl.bonus === "all") bonus += cl.value;
+    }
+    return bonus;
+  }
+
+  function getStat(stat) {
+    return (state[stat] || 0) + getBonus(stat);
+  }
+
+  function getPower() {
+    return getStat("strength") * 1.5 + getStat("intelligence") * 1.2 + getStat("aura") * 1.3;
+  }
+
+  function getClickPower() {
+    let base = 1 + Math.floor(getStat("strength") / 5) + Math.floor(getStat("aura") / 8);
+    if (state.city === "ascend") base = Math.floor(base * 1.1);
+    return Math.max(1, base);
+  }
+
+  // ========== RENDER ==========
+  function renderHeader() {
+    document.getElementById("rankBadge").textContent = RANKS[state.rank] || "SAB3";
+    document.getElementById("pointsVal").textContent = formatNum(state.points);
+    document.getElementById("energyVal").textContent = `${Math.floor(state.energy)}/${state.maxEnergy}`;
+    document.getElementById("strVal").textContent = getStat("strength");
+    document.getElementById("energyFill").style.width = `${(state.energy / state.maxEnergy) * 100}%`;
+    document.getElementById("intVal").textContent = getStat("intelligence");
+    document.getElementById("auraVal").textContent = getStat("aura");
+    document.getElementById("totalClicks").textContent = formatNum(state.totalClicks);
+  }
+
+  function formatNum(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+    return Math.floor(n).toString();
+  }
+
+  function renderTrain() {
+    document.getElementById("trainStr").textContent = getStat("strength");
+    document.getElementById("trainInt").textContent = getStat("intelligence");
+    document.getElementById("trainAura").textContent = getStat("aura");
+  }
+
+  function renderEnemies() {
+    const list = document.getElementById("enemyList");
+    list.innerHTML = "";
+    const myPower = getPower();
+    ENEMIES.forEach(e => {
+      const div = document.createElement("div");
+      div.className = "enemy-card";
+      const canFight = state.energy >= e.energy;
+      div.innerHTML = `
+        <div class="enemy-info">
+          <h4>${e.name}</h4>
+          <small>Сила: ${e.power} • Награда: ${e.reward} • Энергия: ${e.energy}</small>
+        </div>
+        <button class="btn btn-sm ${canFight ? 'btn-danger' : ''}" data-enemy="${e.id}" ${canFight ? '' : 'disabled'}>
+          Атаковать
+        </button>
+      `;
+      list.appendChild(div);
+    });
+    list.querySelectorAll("[data-enemy]").forEach(btn => {
+      btn.addEventListener("click", () => fight(btn.dataset.enemy));
+    });
+  }
+
+  function renderQuests() {
+    const q = state.quests;
+    const items = [
+      { key: "click100", title: "Сделай 100 кликов", reward: "150 очков" },
+      { key: "train5", title: "Проведи 5 тренировок", reward: "200 очков + 20 энергии" },
+      { key: "win3", title: "Победи в 3 боях", reward: "300 очков" },
+      { key: "openCase", title: "Открой 1 кейс", reward: "100 очков" },
+      { key: "reachLtn", title: "Достигни ранга LTN", reward: "500 очков + Буст Силы" }
+    ];
+    const list = document.getElementById("questList");
+    list.innerHTML = "";
+    items.forEach(it => {
+      const quest = q[it.key];
+      const done = quest.done || quest.progress >= quest.target;
+      const claimed = quest.claimed;
+      const div = document.createElement("div");
+      div.className = "quest-item" + (claimed ? " done" : "");
+      div.innerHTML = `
+        <div>
+          <div style="font-weight:600;font-size:0.88rem">${it.title}</div>
+          <div class="progress">${Math.min(quest.progress, quest.target)} / ${quest.target} • Награда: ${it.reward}</div>
+        </div>
+        <button class="btn btn-sm ${claimed ? '' : (done ? 'btn-success' : '')}" data-quest="${it.key}" ${claimed || !done ? 'disabled' : ''}>
+          ${claimed ? '✓' : (done ? 'Забрать' : '...')}
+        </button>
+      `;
+      list.appendChild(div);
+    });
+    list.querySelectorAll("[data-quest]").forEach(btn => {
+      btn.addEventListener("click", () => claimQuest(btn.dataset.quest));
+    });
+  }
+
+  function renderCases() {
+    const grid = document.getElementById("caseGrid");
+    grid.innerHTML = "";
+    CASES.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "case-card";
+      div.innerHTML = `
+        <div class="icon">${c.icon}</div>
+        <div class="name">${c.name}</div>
+        <div class="price">${c.price} очков</div>
+      `;
+      div.addEventListener("click", () => openCase(c.id));
+      grid.appendChild(div);
+    });
+  }
+
+  function renderInventory() {
+    const list = document.getElementById("inventoryList");
+    const keys = Object.keys(state.inventory).filter(k => state.inventory[k] > 0);
+    if (keys.length === 0) {
+      list.innerHTML = '<p class="text-muted" style="font-size:0.85rem">Инвентарь пуст</p>';
+      return;
+    }
+    list.innerHTML = "";
+    keys.forEach(id => {
+      const item = ITEMS[id];
+      if (!item) return;
+      const count = state.inventory[id];
+      const chip = document.createElement("div");
+      chip.className = "item-chip";
+      chip.innerHTML = `${item.name} ×${count} <button class="btn btn-sm btn-primary" data-use="${id}" style="margin-left:6px;padding:3px 8px">Исп.</button>`;
+      list.appendChild(chip);
+    });
+    list.querySelectorAll("[data-use]").forEach(btn => {
+      btn.addEventListener("click", () => useItem(btn.dataset.use));
+    });
+  }
+
+  function renderProfile() {
+    document.getElementById("profName").textContent = state.name;
+    document.getElementById("profRank").textContent = RANKS[state.rank];
+    document.getElementById("profPoints").textContent = formatNum(state.points);
+    document.getElementById("profStats").textContent = `${getStat("strength")} / ${getStat("intelligence")} / ${getStat("aura")}`;
+    document.getElementById("profClicks").textContent = formatNum(state.totalClicks);
+    document.getElementById("profWins").textContent = state.wins;
+    document.getElementById("profCity").textContent = state.city ? (CITIES.find(c => c.id === state.city)?.name || "—") : "—";
+    document.getElementById("profClan").textContent = state.clan ? (CLANS.find(c => c.id === state.clan)?.name || "—") : "—";
+  }
+
+  function renderCities() {
+    const list = document.getElementById("cityList");
+    list.innerHTML = "";
+    CITIES.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "select-card" + (state.city === c.id ? " active" : "");
+      div.innerHTML = `<h4>${c.name}</h4><small>${c.desc}</small>`;
+      div.addEventListener("click", () => {
+        state.city = c.id;
+        toast(`Город выбран: ${c.name}`);
+        save();
+        renderCities();
+        renderHeader();
+        renderProfile();
+      });
+      list.appendChild(div);
+    });
+  }
+
+  function renderClans() {
+    const list = document.getElementById("clanList");
+    list.innerHTML = "";
+    CLANS.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "select-card" + (state.clan === c.id ? " active" : "");
+      div.innerHTML = `<h4>${c.name}</h4><small>${c.desc}</small>`;
+      div.addEventListener("click", () => {
+        state.clan = c.id;
+        toast(`Клан выбран: ${c.name}`);
+        save();
+        renderClans();
+        renderHeader();
+        renderProfile();
+      });
+      list.appendChild(div);
+    });
+  }
+
+  function renderLeaderboard() {
+    const npcs = [
+      { name: "ShadowMog", score: 125000, rank: "HIGH CHAD" },
+      { name: "TrueAscended", score: 98000, rank: "MID CHAD" },
+      { name: "AuraKing", score: 76000, rank: "CHAD" },
+      { name: "IronFist99", score: 54000, rank: "HIGH CHADLITE" },
+      { name: "NeonBlade", score: 41000, rank: "CHADLITE" },
+      { name: "VoidWalker", score: 32000, rank: "HIGH HTN" },
+      { name: "CyberRonin", score: 21000, rank: "MTN" },
+      { name: "MogRecruit", score: 8500, rank: "HIGH LTN" },
+      { name: "FreshBlood", score: 3200, rank: "MID LTN" }
+    ];
+    const you = {
+      name: state.name + " (Вы)",
+      score: state.points + state.totalClicks * 2 + state.wins * 50,
+      rank: RANKS[state.rank],
+      you: true
+    };
+    const all = [...npcs, you].sort((a, b) => b.score - a.score);
+    const list = document.getElementById("lbList");
+    list.innerHTML = "";
+    all.forEach((p, i) => {
+      const div = document.createElement("div");
+      div.className = "lb-row" + (p.you ? " you" : "");
+      div.innerHTML = `
+        <div class="lb-pos">#${i + 1}</div>
+        <div class="lb-name">${p.name}<br><small class="text-muted">${p.rank}</small></div>
+        <div class="lb-score">${formatNum(p.score)}</div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function renderRankUp() {
+    document.getElementById("currentRankName").textContent = RANKS[state.rank];
+    const nextIdx = state.rank + 1;
+    if (nextIdx >= RANKS.length) {
+      document.getElementById("nextRankName").textContent = "МАКСИМУМ";
+      document.getElementById("rankReqs").innerHTML = '<p class="text-gold">Вы достигли вершины — TRUE ADAM!</p>';
+      document.getElementById("btnRankUp").disabled = true;
+      return;
+    }
+    document.getElementById("nextRankName").textContent = RANKS[nextIdx];
+    const req = RANK_REQS[nextIdx];
+    const disc = 1 - (state.rankDiscount || 0);
+    const needPoints = Math.floor(req.points * disc);
+    const needStr = Math.floor(req.strength * disc);
+    const needInt = Math.floor(req.intelligence * disc);
+    const needAura = Math.floor(req.aura * disc);
+
+    const checks = [
+      { ok: state.points >= needPoints, text: `Очки: ${formatNum(state.points)} / ${formatNum(needPoints)}` },
+      { ok: getStat("strength") >= needStr, text: `Сила: ${getStat("strength")} / ${needStr}` },
+      { ok: getStat("intelligence") >= needInt, text: `Интеллект: ${getStat("intelligence")} / ${needInt}` },
+      { ok: getStat("aura") >= needAura, text: `Аура: ${getStat("aura")} / ${needAura}` }
+    ];
+    document.getElementById("rankReqs").innerHTML = checks.map(c =>
+      `<div class="rank-req ${c.ok ? 'ok' : 'no'}">${c.ok ? '✓' : '✗'} ${c.text}</div>`
+    ).join("");
+    document.getElementById("btnRankUp").disabled = !checks.every(c => c.ok);
+
+    // All ranks list
+    document.getElementById("allRanks").innerHTML = RANKS.map((r, i) =>
+      `<span style="color:${i === state.rank ? 'var(--gold)' : (i < state.rank ? 'var(--success)' : 'var(--text2)')}">${r}</span>`
+    ).join(" → ");
+  }
+
+  function renderAll() {
+    renderHeader();
+    renderTrain();
+    renderEnemies();
+    renderQuests();
+    renderCases();
+    renderInventory();
+    renderProfile();
+    renderCities();
+    renderClans();
+    renderLeaderboard();
+    renderRankUp();
+  }
+
+  // ========== ACTIONS ==========
+  function doClick(e) {
+    if (state.energy < 1) {
+      toast("Недостаточно энергии!");
+      return;
+    }
+    state.energy -= 1;
+    const power = getClickPower();
+    state.points += power;
+    state.totalClicks += 1;
+
+    // Quest
+    if (!state.quests.click100.claimed) {
+      state.quests.click100.progress = Math.min(state.quests.click100.target, state.quests.click100.progress + 1);
+      if (state.quests.click100.progress >= state.quests.click100.target) state.quests.click100.done = true;
+    }
+
+    // Float text
+    const zone = document.getElementById("clickZone");
+    const ft = document.createElement("div");
+    ft.className = "float-text";
+    ft.textContent = `+${power}`;
+    const rect = zone.getBoundingClientRect();
+    const x = (e?.clientX || rect.left + rect.width / 2) - rect.left;
+    const y = (e?.clientY || rect.top + rect.height / 2) - rect.top;
+    ft.style.left = x + "px";
+    ft.style.top = y + "px";
+    zone.appendChild(ft);
+    setTimeout(() => ft.remove(), 800);
+
+    renderHeader();
+    save();
+  }
+
+  function train(stat) {
+    const costEnergy = 15;
+    const costPoints = 50;
+    if (state.energy < costEnergy) { toast("Мало энергии"); return; }
+    if (state.points < costPoints) { toast("Мало очков"); return; }
+    state.energy -= costEnergy;
+    state.points -= costPoints;
+    state[stat] += 1;
+
+    if (!state.quests.train5.claimed) {
+      state.quests.train5.progress = Math.min(5, state.quests.train5.progress + 1);
+      if (state.quests.train5.progress >= 5) state.quests.train5.done = true;
+    }
+
+    toast(`+1 ${stat === 'strength' ? 'Сила' : stat === 'intelligence' ? 'Интеллект' : 'Аура'}!`);
+    renderAll();
+    save();
+  }
+
+  function restoreEnergy() {
+    if (state.points < 200) { toast("Нужно 200 очков"); return; }
+    if (state.energy >= state.maxEnergy) { toast("Энергия полная"); return; }
+    state.points -= 200;
+    state.energy = state.maxEnergy;
+    toast("Энергия восстановлена!");
+    renderHeader();
+    save();
+  }
+
+  function fight(enemyId) {
+    const enemy = ENEMIES.find(e => e.id === enemyId);
+    if (!enemy) return;
+    if (state.energy < enemy.energy) { toast("Мало энергии"); return; }
+    state.energy -= enemy.energy;
+
+    const myPower = getPower();
+    const winChance = Math.min(0.92, myPower / (myPower + enemy.power));
+    const won = Math.random() < winChance;
+
+    if (won) {
+      state.points += enemy.reward;
+      state.wins += 1;
+      if (!state.quests.win3.claimed) {
+        state.quests.win3.progress = Math.min(3, state.quests.win3.progress + 1);
+        if (state.quests.win3.progress >= 3) state.quests.win3.done = true;
+      }
+      toast(`Победа! +${enemy.reward} очков`);
+    } else {
+      toast("Поражение...");
+    }
+    renderAll();
+    save();
+  }
+
+  function claimQuest(key) {
+    const q = state.quests[key];
+    if (!q || q.claimed || q.progress < q.target) return;
+    q.claimed = true;
+    q.done = true;
+
+    if (key === "click100") state.points += 150;
+    if (key === "train5") { state.points += 200; state.energy = Math.min(state.maxEnergy, state.energy + 20); }
+    if (key === "win3") state.points += 300;
+    if (key === "openCase") state.points += 100;
+    if (key === "reachLtn") {
+      state.points += 500;
+      state.inventory.boost_str = (state.inventory.boost_str || 0) + 1;
+    }
+    toast("Награда получена!");
+    renderAll();
+    save();
+  }
+
+  function openCase(caseId) {
+    const c = CASES.find(x => x.id === caseId);
+    if (!c) return;
+    if (state.points < c.price) { toast("Недостаточно очков"); return; }
+    state.points -= c.price;
+
+    // Roll loot
+    let roll = Math.random();
+    let cumulative = 0;
+    let result = null;
+    for (const loot of c.loot) {
+      cumulative += loot.chance;
+      if (roll <= cumulative) {
+        result = loot;
+        break;
+      }
+    }
+    if (!result) result = c.loot[0];
+
+    let msg = "";
+    if (result.type === "points") {
+      const amt = Math.floor(result.min + Math.random() * (result.max - result.min));
+      state.points += amt;
+      msg = `Выпало ${amt} очков!`;
+    } else if (result.type === "item") {
+      state.inventory[result.id] = (state.inventory[result.id] || 0) + 1;
+      msg = `Получен предмет: ${ITEMS[result.id]?.name || result.id}`;
+    }
+
+    if (!state.quests.openCase.claimed) {
+      state.quests.openCase.progress = 1;
+      state.quests.openCase.done = true;
+    }
+
+    showModal("Кейс открыт!", `<p style="font-size:1.1rem;text-align:center;margin:16px 0">${msg}</p>`);
+    renderAll();
+    save();
+  }
+
+  function useItem(itemId) {
+    if (!state.inventory[itemId] || state.inventory[itemId] <= 0) return;
+    const item = ITEMS[itemId];
+    if (!item) return;
+    state.inventory[itemId] -= 1;
+    if (state.inventory[itemId] <= 0) delete state.inventory[itemId];
+
+    const eff = item.effect;
+    if (eff.strength) state.strength += eff.strength;
+    if (eff.intelligence) state.intelligence += eff.intelligence;
+    if (eff.aura) state.aura += eff.aura;
+    if (eff.energy) state.energy = Math.min(state.maxEnergy, state.energy + eff.energy);
+    if (eff.points) state.points += eff.points;
+    if (eff.rankDiscount) state.rankDiscount = Math.min(0.5, (state.rankDiscount || 0) + eff.rankDiscount);
+
+    toast(`Использовано: ${item.name}`);
+    renderAll();
+    save();
+  }
+
+  function doRankUp() {
+    const nextIdx = state.rank + 1;
+    if (nextIdx >= RANKS.length) return;
+    const req = RANK_REQS[nextIdx];
+    const disc = 1 - (state.rankDiscount || 0);
+    const needPoints = Math.floor(req.points * disc);
+    const needStr = Math.floor(req.strength * disc);
+    const needInt = Math.floor(req.intelligence * disc);
+    const needAura = Math.floor(req.aura * disc);
+
+    if (state.points < needPoints || getStat("strength") < needStr ||
+        getStat("intelligence") < needInt || getStat("aura") < needAura) {
+      toast("Требования не выполнены");
+      return;
+    }
+
+    state.points -= Math.floor(needPoints * 0.3); // partial cost
+    state.rank = nextIdx;
+
+    // Quest for LTN
+    if (RANKS[nextIdx] === "LTN" || nextIdx >= 3) {
+      if (!state.quests.reachLtn.claimed) {
+        state.quests.reachLtn.progress = 1;
+        state.quests.reachLtn.done = true;
+      }
+    }
+
+    toast(`Ранг повышен! Теперь вы ${RANKS[nextIdx]}`);
+    showModal("Повышение ранга!", `<p style="text-align:center;font-size:1.3rem;color:var(--gold);margin:20px 0">${RANKS[nextIdx]}</p><p class="text-muted text-center">Продолжайте восхождение...</p>`);
+    renderAll();
+    save();
+  }
+
+  // ========== ENERGY REGEN ==========
+  function energyTick() {
+    if (state.energy < state.maxEnergy) {
+      state.energy = Math.min(state.maxEnergy, state.energy + 0.125); // ~1 per 8 sec
+      renderHeader();
+    }
+  }
+
+  // ========== NAV ==========
+  function switchPanel(name) {
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    const panel = document.getElementById("panel-" + name);
+    if (panel) panel.classList.add("active");
+    const btn = document.querySelector(`.nav-btn[data-panel="${name}"]`);
+    if (btn) btn.classList.add("active");
+
+    // Refresh dynamic panels
+    if (name === "battle") renderEnemies();
+    if (name === "quests") renderQuests();
+    if (name === "cases") { renderCases(); renderInventory(); }
+    if (name === "profile") renderProfile();
+    if (name === "leaderboard") renderLeaderboard();
+    if (name === "rankup") renderRankUp();
+    if (name === "train") renderTrain();
+  }
+
+  // ========== INIT ==========
+  function init() {
+    try {
+      load();
+      renderAll();
+
+      // Nav
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.addEventListener("click", () => switchPanel(btn.dataset.panel));
+      });
+
+      // Click
+      document.getElementById("clickBtn").addEventListener("click", doClick);
+
+      // Train
+      document.getElementById("btnTrainStr").addEventListener("click", () => train("strength"));
+      document.getElementById("btnTrainInt").addEventListener("click", () => train("intelligence"));
+      document.getElementById("btnTrainAura").addEventListener("click", () => train("aura"));
+      document.getElementById("btnRestoreEnergy").addEventListener("click", restoreEnergy);
+
+      // Rank
+      document.getElementById("btnRankUp").addEventListener("click", doRankUp);
+
+      // Profile
+      document.getElementById("btnSaveName").addEventListener("click", () => {
+        const val = document.getElementById("nameInput").value.trim().slice(0, 16);
+        if (val.length < 2) { toast("Имя слишком короткое"); return; }
+        state.name = val;
+        toast("Имя сохранено");
+        renderProfile();
+        renderLeaderboard();
+        save();
+      });
+
+      document.getElementById("btnReset").addEventListener("click", () => {
+        if (confirm("Точно сбросить весь прогресс?")) {
+          localStorage.removeItem("mogg_ascension_save");
+          state = defaultState();
+          renderAll();
+          toast("Прогресс сброшен");
+        }
+      });
+
+      // Modal
+      document.getElementById("modalClose").addEventListener("click", hideModal);
+      document.getElementById("modalOverlay").addEventListener("click", e => {
+        if (e.target === document.getElementById("modalOverlay")) hideModal();
+      });
+
+      // Energy interval
+      setInterval(energyTick, 1000);
+
+      // Auto-save
+      setInterval(save, 15000);
+
+      // Visibility energy
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          load();
+          renderHeader();
+        }
+      });
+
+      console.log("MOGG — Ascension Protocol loaded");
+    } catch (err) {
+      console.error("Init error:", err);
+      alert("Ошибка загрузки игры. Попробуйте обновить страницу.");
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
